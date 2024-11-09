@@ -1,0 +1,47 @@
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://accounts.google.com/
+  liquibase:
+    enabled: false
+  profiles:
+    default: dev
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    driverClassName: org.h2.Driver
+    url: jdbc:h2:mem:db
+    username: sa
+    password: sa
+  h2:
+    console.enabled: true
+  jpa:
+    open-in-view: true
+
+logging:
+  level:
+    root: WARN
+  file:
+    path: ./logs
+
+---
+spring:
+  config:
+    import: optional:configtree:/run/secrets/
+    activate:
+      on-profile: prod
+  datasource:
+    driverClassName: org.postgresql.Driver
+    url: {db.url}
+    username: {db.username}
+    password: {db.password}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
