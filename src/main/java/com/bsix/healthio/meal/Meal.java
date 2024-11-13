@@ -2,6 +2,9 @@ package com.bsix.healthio.meal;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -37,7 +40,11 @@ public class Meal {
   @Embeddable
   public static class Food {
 
+    @Size(max = 50, message = "You cannot name a food with more than 50 characters!")
     private String name;
+
+    @Min(value = 1, message = "You cannot add a food with less than 1 calorie!")
+    @Max(value = 10_000, message = "You cannot add a food with more than 10,000 calories!")
     private Integer calories;
   }
 }

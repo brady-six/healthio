@@ -1,9 +1,12 @@
 package com.bsix.healthio.meal;
 
+import jakarta.validation.Valid;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
+@Validated
 @Service
 public class MealService {
 
@@ -13,7 +16,7 @@ public class MealService {
     this.mealRepository = mealRepository;
   }
 
-  Page<Meal> getMeals(MealPageRequest request) {
+  Page<Meal> getMeals(@Valid MealPageRequest request) {
     return mealRepository.findByOwnerAndDateBetweenAndTotalCaloriesBetween(
         request.owner(),
         request.dateStart(),
@@ -23,7 +26,7 @@ public class MealService {
         request.pageable());
   }
 
-  Meal postMeal(MealMutateRequest request) {
+  Meal postMeal(@Valid MealMutateRequest request) {
     Meal meal = new Meal();
 
     meal.setDate(request.body().date());
@@ -33,7 +36,7 @@ public class MealService {
     return mealRepository.save(meal);
   }
 
-  void putMeal(UUID id, MealMutateRequest request) {
+  void putMeal(UUID id, @Valid MealMutateRequest request) {
     Meal meal = findMeal(id, request.owner());
 
     meal.setDate(request.body().date());

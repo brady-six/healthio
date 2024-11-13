@@ -1,6 +1,11 @@
 package com.bsix.healthio.meal;
 
+import jakarta.validation.constraints.PastOrPresent;
+import jakarta.validation.constraints.Size;
 import java.time.Instant;
 import java.util.List;
 
-public record MealMutateBody(Instant date, List<Meal.Food> foods) {}
+public record MealMutateBody(
+    @PastOrPresent(message = "You cannot log future meals!") Instant date,
+    @Size(max = 20, message = "You cannot add more than 20 foods to a meal!")
+        List<Meal.Food> foods) {}
