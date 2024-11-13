@@ -15,10 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/meals")
@@ -46,7 +43,7 @@ public class MealController {
   }
 
   @GetMapping
-  ResponseEntity<PagedModel<EntityModel<Meal>>> getWorkouts(
+  ResponseEntity<PagedModel<EntityModel<Meal>>> getMeals(
       @AuthenticationPrincipal Jwt jwt,
       @RequestParam Optional<Instant> dateStart,
       @RequestParam Optional<Instant> dateEnd,
