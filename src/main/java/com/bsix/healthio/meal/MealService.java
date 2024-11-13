@@ -40,7 +40,7 @@ public class MealService {
   void putMeal(UUID id, @Valid MealMutateRequest request) {
     Meal meal = findMeal(id, request.owner());
 
-    meal.setDate(request.body().date());
+    meal.setDate(request.body().date() != null ? request.body().date() : Instant.now());
     meal.setFoods(request.body().foods());
     meal.setTotalCalories(Meal.calculateTotalCalories(request.body().foods()));
 
