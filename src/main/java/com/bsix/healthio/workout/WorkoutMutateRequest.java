@@ -1,3 +1,5 @@
 package com.bsix.healthio.workout;
 
-public record WorkoutMutateRequest(String owner, WorkoutMutateBody body) {}
+import jakarta.validation.Valid;
+
+public record WorkoutMutateRequest(String owner, @Valid WorkoutMutateBody body) {}
