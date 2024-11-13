@@ -2,6 +2,7 @@ package com.bsix.healthio.workout;
 
 import java.time.Instant;
 import java.util.Optional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -84,5 +85,17 @@ public class WorkoutController {
         .contentType(MediaType.APPLICATION_JSON)
         .allow(HttpMethod.POST)
         .body(model);
+  }
+
+  @PutMapping("/{id}")
+  ResponseEntity<Void> putWorkout(
+      @AuthenticationPrincipal Jwt jwt,
+      @PathVariable String id,
+      @RequestBody WorkoutMutateBody body) {
+    WorkoutMutateRequest request = new WorkoutMutateRequest(jwt.getSubject(), body);
+
+    workoutService.putWorkout(UUID.fromString(id), request);
+
+    return ResponseEntity.noContent().allow(HttpMethod.PUT).build();
   }
 }

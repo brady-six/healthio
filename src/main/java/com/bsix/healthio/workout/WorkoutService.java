@@ -1,6 +1,7 @@
 package com.bsix.healthio.workout;
 
 import jakarta.validation.Valid;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -35,5 +36,21 @@ public class WorkoutService {
     workout.setDurationMinutes(request.body().durationMinutes());
 
     return workoutRepository.save(workout);
+  }
+
+  public void putWorkout(UUID id, WorkoutMutateRequest request) {
+    Workout workout = findWorkout(id, request.owner());
+
+    workout.setDate(request.body().date());
+    workout.setCaloriesBurned(request.body().caloriesBurned());
+    workout.setDurationMinutes(request.body().durationMinutes());
+
+    workoutRepository.save(workout);
+  }
+
+  Workout findWorkout(UUID id, String owner) {
+    return workoutRepository
+        .findByIdAndOwner(id, owner)
+        .orElseThrow(() -> new WorkoutNotFoundException(id));
   }
 }
