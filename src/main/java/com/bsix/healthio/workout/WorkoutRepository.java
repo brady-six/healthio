@@ -1,6 +1,7 @@
 package com.bsix.healthio.workout;
 
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,4 +17,6 @@ public interface WorkoutRepository extends JpaRepository<Workout, UUID> {
       Integer durationMin,
       Integer durationMax,
       Pageable pageable);
+
+  Optional<Workout> findByIdAndOwner(UUID id, String owner);
 }
