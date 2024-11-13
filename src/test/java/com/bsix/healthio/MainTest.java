@@ -33,6 +33,7 @@ public class MainTest {
           Instant.now().plusSeconds(3600),
           Map.of("alg", "HS256", "typ", "JWT"),
           Map.of("sub", "1"));
+  @Autowired private TestRestTemplate http;
 
   public static final ResultMatcher matchPagedModel() {
     return result -> {
@@ -53,8 +54,6 @@ public class MainTest {
       jsonPath("$.instance").isString().match(result);
     };
   }
-
-  @Autowired private TestRestTemplate http;
 
   @Test
   void contextLoads() {

@@ -11,10 +11,10 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 @RestControllerAdvice
 public class GlobalAdvice {
 
-    @ExceptionHandler(ErrorResponseException.class)
-    ProblemDetail handleErrorResponseException(ErrorResponseException e) {
-        return e.getBody();
-    }
+  @ExceptionHandler(ErrorResponseException.class)
+  ProblemDetail handleErrorResponseException(ErrorResponseException e) {
+    return e.getBody();
+  }
 
   @ExceptionHandler(ConstraintViolationException.class)
   ProblemDetail handleConstraintViolationException(ConstraintViolationException e) {
