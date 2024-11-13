@@ -12,6 +12,8 @@ public class WorkoutAssembler
 
   @Override
   public EntityModel<Workout> toModel(Workout workout) {
-    return EntityModel.of(workout, Link.of(WorkoutController.ROOT_URI, IanaLinkRelations.SELF));
+    return EntityModel.of(
+        workout,
+        Link.of(WorkoutController.ROOT_URI + "/" + workout.getId(), IanaLinkRelations.SELF));
   }
 }
