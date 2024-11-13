@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -193,6 +194,27 @@ public class WorkoutControllerTest {
                         new WorkoutMutateRequest(
                             "1",
                             new WorkoutMutateBody(Instant.now().plusSeconds(3600), -255, -23)))))
+        .andExpect(matchProblemDetail());
+  }
+
+  @Test
+  void deleteWorkout_WithGoodRequest_ShouldReturnNoContent() throws Exception {
+    doNothing().when(workoutService).deleteWorkout(any(), any());
+
+    mockMvc
+        .perform(delete(ROOT_URI + "/" + DEFAULT_WORKOUT.getId()).with(jwt().jwt(DEFAULT_JWT)))
+        .andExpect(status().isNoContent())
+        .andExpect(header().string(HttpHeaders.ALLOW, HttpMethod.DELETE.name()));
+  }
+
+  @Test
+  void deleteWorkout_WithBadId_ShouldReturnProblemDetail() throws Exception {
+    doThrow(new WorkoutNotFoundException(UUID.randomUUID()))
+        .when(workoutService)
+        .deleteWorkout(any(), any());
+
+    mockMvc
+        .perform(delete(ROOT_URI + "/" + DEFAULT_WORKOUT.getId()).with(jwt().jwt(DEFAULT_JWT)))
         .andExpect(matchProblemDetail());
   }
 }
