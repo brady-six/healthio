@@ -22,4 +22,15 @@ public class WorkoutService {
             request.durationMin(),
             request.durationMax());
   }
+
+  Workout postWorkout(@Valid WorkoutMutateRequest request) {
+    Workout workout = new Workout();
+
+    workout.setOwner(request.owner());
+    workout.setDate(request.body().date());
+    workout.setCaloriesBurned(request.body().caloriesBurned());
+    workout.setDurationMinutes(request.body().durationMinutes());
+
+    return workoutRepository.save(workout);
+  }
 }

@@ -70,4 +70,19 @@ public class WorkoutController {
         .contentType(MediaType.APPLICATION_JSON)
         .body(model);
   }
+
+  @PostMapping
+  ResponseEntity<EntityModel<Workout>> postWorkout(
+      @AuthenticationPrincipal Jwt jwt, @RequestBody WorkoutMutateBody body) {
+    WorkoutMutateRequest request = new WorkoutMutateRequest(jwt.getSubject(), body);
+
+    Workout workout = workoutService.postWorkout(request);
+
+    EntityModel<Workout> model = workoutAssembler.toModel(workout);
+
+    return ResponseEntity.created(model.getRequiredLink(IanaLinkRelations.SELF).toUri())
+        .contentType(MediaType.APPLICATION_JSON)
+        .allow(HttpMethod.POST)
+        .body(model);
+  }
 }
