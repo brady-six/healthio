@@ -1,5 +1,6 @@
 package com.bsix.healthio.workout;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -20,7 +21,7 @@ public class Workout {
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
-  private String owner;
+  @JsonIgnore private String owner;
 
   private Instant date;
 
