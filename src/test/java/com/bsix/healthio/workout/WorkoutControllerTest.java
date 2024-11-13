@@ -2,8 +2,7 @@ package com.bsix.healthio.workout;
 
 import static com.bsix.healthio.MainTest.*;
 import static com.bsix.healthio.workout.WorkoutController.*;
-import static com.bsix.healthio.workout.WorkoutTest.DEFAULT_WORKOUT_ENTITY;
-import static com.bsix.healthio.workout.WorkoutTest.DEFAULT_WORKOUT_PAGE;
+import static com.bsix.healthio.workout.WorkoutTest.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
