@@ -7,8 +7,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +29,8 @@ import org.springframework.util.MultiValueMap;
 public class WorkoutControllerTest {
 
   @Autowired private MockMvc mockMvc;
+
+  @Autowired private ObjectMapper objectMapper;
 
   @MockBean private WorkoutAssembler workoutAssembler;
 
@@ -124,6 +128,40 @@ public class WorkoutControllerTest {
 
     mockMvc
         .perform(get(ROOT_URI).with(jwt().jwt(DEFAULT_JWT)).accept(MediaType.APPLICATION_JSON))
+        .andExpect(matchProblemDetail());
+  }
+
+  @Test
+  void postWorkout_WithGoodRequest_ShouldReturnCreated() throws Exception {
+    when(workoutService.postWorkout(any())).thenReturn(DEFAULT_WORKOUT);
+
+    when(workoutAssembler.toModel(any())).thenReturn(DEFAULT_WORKOUT_ENTITY);
+
+    mockMvc
+        .perform(
+            post(ROOT_URI)
+                .with(jwt().jwt(DEFAULT_JWT))
+                .accept(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(DEFAULT_WORKOUT_MUTATE_BODY))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isCreated())
+        .andExpect(header().exists(HttpHeaders.LOCATION));
+  }
+
+  @Test
+  void postWorkout_WithBadRequest_ShouldReturnProblemDetail() throws Exception {
+    when(workoutService.postWorkout(any())).thenThrow(DEFAULT_BAD_REQUEST);
+
+    WorkoutMutateBody badMutateBody =
+        new WorkoutMutateBody(Instant.now().plusSeconds(86400), -25, -200);
+
+    mockMvc
+        .perform(
+            post(ROOT_URI)
+                .with(jwt().jwt(DEFAULT_JWT))
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(badMutateBody)))
         .andExpect(matchProblemDetail());
   }
 }

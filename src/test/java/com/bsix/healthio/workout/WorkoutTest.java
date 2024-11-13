@@ -23,6 +23,12 @@ public class WorkoutTest {
 
   public static final Workout DEFAULT_WORKOUT = DEFAULT_WORKOUT_LIST.get(0);
 
+  public static final WorkoutMutateBody DEFAULT_WORKOUT_MUTATE_BODY =
+      new WorkoutMutateBody(
+          DEFAULT_WORKOUT.getDate(),
+          DEFAULT_WORKOUT.getCaloriesBurned(),
+          DEFAULT_WORKOUT.getDurationMinutes());
+
   public static final EntityModel<Workout> DEFAULT_WORKOUT_ENTITY =
       EntityModel.of(
           DEFAULT_WORKOUT,
