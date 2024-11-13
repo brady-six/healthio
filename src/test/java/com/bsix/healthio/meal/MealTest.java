@@ -2,6 +2,7 @@ package com.bsix.healthio.meal;
 
 import static com.bsix.healthio.MainTest.DEFAULT_PAGEABLE;
 import static com.bsix.healthio.meal.MealController.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import java.time.Instant;
 import java.util.List;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
+import org.springframework.test.web.servlet.ResultMatcher;
 
 public class MealTest {
 
@@ -56,4 +58,20 @@ public class MealTest {
 
   static final EntityModel<Meal> DEFAULT_MEAL_ENTITY =
       EntityModel.of(DEFAULT_MEAL, Link.of(ROOT_URI + "/" + DEFAULT_MEAL.getId()));
+
+  static final MealMutateBody DEFAULT_MEAL_MUTATE_BODY =
+      new MealMutateBody(
+          Instant.now().minusSeconds(86400),
+          List.of(new Meal.Food("Smoothie", 350), new Meal.Food("Pizza", 600)));
+
+  static final ResultMatcher matchMealEntity() {
+    return result -> {
+      jsonPath("$._links.self.href").isString().match(result);
+      jsonPath("$.id").isString().match(result);
+      jsonPath("$.date").isString().match(result);
+      jsonPath("$.totalCalories").isNumber().match(result);
+      jsonPath("$.foods").isArray().match(result);
+      jsonPath("$.owner").doesNotExist().match(result);
+    };
+  }
 }
