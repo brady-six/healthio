@@ -94,4 +94,11 @@ public class MealController {
 
     return ResponseEntity.noContent().allow(HttpMethod.PUT).build();
   }
+
+  @DeleteMapping("/{id}")
+  ResponseEntity<Void> deleteMeal(@AuthenticationPrincipal Jwt jwt, @PathVariable String id) {
+    mealService.deleteMeal(UUID.fromString(id), jwt.getSubject());
+
+    return ResponseEntity.noContent().allow(HttpMethod.DELETE).build();
+  }
 }

@@ -43,6 +43,12 @@ public class MealService {
     mealRepository.save(meal);
   }
 
+  void deleteMeal(UUID id, String owner) {
+    Meal meal = findMeal(id, owner);
+
+    mealRepository.deleteById(meal.getId());
+  }
+
   Meal findMeal(UUID id, String owner) {
     return mealRepository
         .findByIdAndOwner(id, owner)
