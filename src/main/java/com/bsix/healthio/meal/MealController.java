@@ -5,8 +5,10 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.data.web.SortDefault;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.hateoas.Link;
@@ -50,7 +52,12 @@ public class MealController {
       @RequestParam Optional<Instant> dateEnd,
       @RequestParam Optional<Integer> consumedMin,
       @RequestParam Optional<Integer> consumedMax,
-      @PageableDefault Pageable pageable) {
+      @PageableDefault
+          @SortDefault.SortDefaults({
+            @SortDefault(sort = "date", direction = Sort.Direction.DESC),
+            @SortDefault(sort = "totalCalories", direction = Sort.Direction.DESC)
+          })
+          Pageable pageable) {
     MealPageRequest request =
         new MealPageRequest(
             jwt.getSubject(),
