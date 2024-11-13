@@ -8,12 +8,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface WorkoutRepository extends JpaRepository<Workout, UUID> {
   Page<Workout> findAllByOwnerAndDateBetweenAndCaloriesBurnedBetweenAndDurationMinutesBetween(
-          String owner,
-          Instant dateStart,
-          Instant dateEnd,
-          Integer burnedMin,
-          Integer burnedMax,
-          Integer durationMin,
-          Integer durationMax,
-          Pageable pagable);
+      String owner,
+      Instant dateStart,
+      Instant dateEnd,
+      Integer burnedMin,
+      Integer burnedMax,
+      Integer durationMin,
+      Integer durationMax,
+      Pageable pageable);
 }
