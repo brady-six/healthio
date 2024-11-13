@@ -1,6 +1,7 @@
 package com.bsix.healthio.workout;
 
 import jakarta.validation.Valid;
+import java.time.Instant;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -31,7 +32,7 @@ public class WorkoutService {
     Workout workout = new Workout();
 
     workout.setOwner(request.owner());
-    workout.setDate(request.body().date());
+    workout.setDate(request.body().date() != null ? request.body().date() : Instant.now());
     workout.setCaloriesBurned(request.body().caloriesBurned());
     workout.setDurationMinutes(request.body().durationMinutes());
 
