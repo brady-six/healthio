@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -17,8 +16,6 @@ import org.springframework.web.ErrorResponseException;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class MainTest {
-
-  public static final Pageable DEFAULT_PAGEABLE = Pageable.ofSize(10);
 
   public static final ErrorResponseException DEFAULT_BAD_REQUEST =
       new ErrorResponseException(

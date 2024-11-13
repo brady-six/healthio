@@ -1,17 +1,31 @@
 package com.bsix.healthio.workout;
 
-import static com.bsix.healthio.MainTest.DEFAULT_PAGEABLE;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.*;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.hateoas.Link;
 
 public class WorkoutTest {
+
+  static final Sort DEFAULT_WORKOUT_DATE_SORT = Sort.by(Sort.Order.desc("date"));
+
+  static final Sort DEFAULT_WORKOUT_CALORIES_BURNED_SORT =
+      Sort.by(Sort.Order.desc("caloriesBurned"));
+
+  static final Sort DEFAULT_WORKOUT_DURATION_MINUTES_SORT =
+      Sort.by(Sort.Order.desc("durationMinutes"));
+
+  static final Pageable DEFAULT_WORKOUT_PAGEABLE =
+      PageRequest.of(
+          0,
+          10,
+          DEFAULT_WORKOUT_DATE_SORT
+              .and(DEFAULT_WORKOUT_CALORIES_BURNED_SORT)
+              .and(DEFAULT_WORKOUT_DURATION_MINUTES_SORT));
 
   public static final List<Workout> DEFAULT_WORKOUT_LIST =
       List.of(
@@ -35,5 +49,5 @@ public class WorkoutTest {
           Link.of("/api/v1/workouts/" + DEFAULT_WORKOUT.getId(), IanaLinkRelations.SELF));
 
   public static final Page<Workout> DEFAULT_WORKOUT_PAGE =
-      new PageImpl<>(DEFAULT_WORKOUT_LIST, DEFAULT_PAGEABLE, DEFAULT_WORKOUT_LIST.size());
+      new PageImpl<>(DEFAULT_WORKOUT_LIST, DEFAULT_WORKOUT_PAGEABLE, DEFAULT_WORKOUT_LIST.size());
 }

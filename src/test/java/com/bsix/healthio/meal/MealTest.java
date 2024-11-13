@@ -1,19 +1,23 @@
 package com.bsix.healthio.meal;
 
-import static com.bsix.healthio.MainTest.DEFAULT_PAGEABLE;
 import static com.bsix.healthio.meal.MealController.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.*;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.test.web.servlet.ResultMatcher;
 
 public class MealTest {
+
+  static final Sort DEFAULT_MEAL_DATE_SORT = Sort.by(Sort.Order.desc("date"));
+  static final Sort DEFAULT_MEAL_TOTAL_CALORIES_SORT = Sort.by(Sort.Order.desc("totalCalories"));
+
+  static final Pageable DEFAULT_MEAL_PAGEABLE =
+      PageRequest.of(0, 10, DEFAULT_MEAL_DATE_SORT.and(DEFAULT_MEAL_TOTAL_CALORIES_SORT));
 
   static final List<Meal> DEFAULT_MEAL_LIST =
       List.of(
@@ -43,7 +47,7 @@ public class MealTest {
               List.of(new Meal.Food("Sandwich", 400), new Meal.Food("Banana", 120))));
 
   static final Page DEFAULT_MEAL_PAGE =
-      new PageImpl<>(DEFAULT_MEAL_LIST, DEFAULT_PAGEABLE, DEFAULT_MEAL_LIST.size());
+      new PageImpl<>(DEFAULT_MEAL_LIST, DEFAULT_MEAL_PAGEABLE, DEFAULT_MEAL_LIST.size());
 
   static final MealPageRequest DEFAULT_MEAL_PAGE_REQUEST =
       new MealPageRequest(
@@ -52,7 +56,7 @@ public class MealTest {
           DEFAULT_DATE_END,
           DEFAULT_CONSUMED_MIN,
           DEFAULT_CONSUMED_MAX,
-          DEFAULT_PAGEABLE);
+          DEFAULT_MEAL_PAGEABLE);
 
   static final Meal DEFAULT_MEAL = DEFAULT_MEAL_LIST.get(0);
 

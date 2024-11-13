@@ -82,7 +82,7 @@ public class WorkoutControllerTest {
                 burnedMax,
                 durationMin,
                 durationMax,
-                DEFAULT_PAGEABLE));
+                DEFAULT_WORKOUT_PAGEABLE));
   }
 
   @Test
@@ -109,7 +109,7 @@ public class WorkoutControllerTest {
                 DEFAULT_BURNED_MAX,
                 DEFAULT_DURATION_MIN,
                 DEFAULT_DURATION_MAX,
-                DEFAULT_PAGEABLE));
+                DEFAULT_WORKOUT_PAGEABLE));
   }
 
   @Test
