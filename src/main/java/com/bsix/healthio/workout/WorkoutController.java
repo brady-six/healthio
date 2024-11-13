@@ -98,4 +98,11 @@ public class WorkoutController {
 
     return ResponseEntity.noContent().allow(HttpMethod.PUT).build();
   }
+
+  @DeleteMapping("/{id}")
+  ResponseEntity<Void> deleteWorkout(@AuthenticationPrincipal Jwt jwt, @PathVariable String id) {
+    workoutService.deleteWorkout(UUID.fromString(id), jwt.getSubject());
+
+    return ResponseEntity.noContent().allow(HttpMethod.DELETE).build();
+  }
 }

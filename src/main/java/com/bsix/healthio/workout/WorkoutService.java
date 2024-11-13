@@ -53,4 +53,10 @@ public class WorkoutService {
         .findByIdAndOwner(id, owner)
         .orElseThrow(() -> new WorkoutNotFoundException(id));
   }
+
+  public void deleteWorkout(UUID id, String owner) {
+    Workout workout = findWorkout(id, owner);
+
+    workoutRepository.deleteById(workout.getId());
+  }
 }
