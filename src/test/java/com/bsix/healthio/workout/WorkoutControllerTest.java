@@ -6,8 +6,7 @@ import static com.bsix.healthio.workout.WorkoutTest.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -162,6 +161,38 @@ public class WorkoutControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(badMutateBody)))
+        .andExpect(matchProblemDetail());
+  }
+
+  @Test
+  void putWorkout_WithGoodRequest_ShouldReturnNoContent() throws Exception {
+    when(workoutService.findWorkout(any(), any())).thenReturn(DEFAULT_WORKOUT);
+    doNothing().when(workoutService).putWorkout(any(), any());
+
+    mockMvc
+        .perform(
+            put(ROOT_URI + "/" + DEFAULT_WORKOUT.getId())
+                .with(jwt().jwt(DEFAULT_JWT))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(DEFAULT_WORKOUT_MUTATE_BODY)))
+        .andExpect(status().isNoContent())
+        .andExpect(header().string(HttpHeaders.ALLOW, HttpMethod.PUT.name()));
+  }
+
+  @Test
+  void putWorkout_WithBadRequest_ShouldReturnProblemDetail() throws Exception {
+    doThrow(DEFAULT_BAD_REQUEST).when(workoutService).putWorkout(any(), any());
+
+    mockMvc
+        .perform(
+            put(ROOT_URI + "/" + DEFAULT_WORKOUT.getId())
+                .with(jwt().jwt(DEFAULT_JWT))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    objectMapper.writeValueAsString(
+                        new WorkoutMutateRequest(
+                            "1",
+                            new WorkoutMutateBody(Instant.now().plusSeconds(3600), -255, -23)))))
         .andExpect(matchProblemDetail());
   }
 }
