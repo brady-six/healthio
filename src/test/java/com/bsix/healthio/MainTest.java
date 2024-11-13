@@ -34,6 +34,16 @@ public class MainTest {
           Map.of("alg", "HS256", "typ", "JWT"),
           Map.of("sub", "1"));
 
+  public static final ResultMatcher matchPagedModel() {
+    return result -> {
+      jsonPath("$.page").isNumber().match(result);
+      jsonPath("$.size").isNumber().match(result);
+      jsonPath("$.totalPages").isNumber().match(result);
+      jsonPath("$.totalElements").isNumber().match(result);
+      jsonPath("$._links.self.href").isString().match(result);
+    };
+  }
+
   public static final ResultMatcher matchProblemDetail() {
     return result -> {
       jsonPath("$.type").isString();
