@@ -39,10 +39,10 @@ public class WorkoutService {
     return workoutRepository.save(workout);
   }
 
-  public void putWorkout(UUID id, WorkoutMutateRequest request) {
+  public void putWorkout(UUID id, @Valid WorkoutMutateRequest request) {
     Workout workout = findWorkout(id, request.owner());
 
-    workout.setDate(request.body().date());
+    workout.setDate(request.body().date() != null ? request.body().date() : Instant.now());
     workout.setCaloriesBurned(request.body().caloriesBurned());
     workout.setDurationMinutes(request.body().durationMinutes());
 
