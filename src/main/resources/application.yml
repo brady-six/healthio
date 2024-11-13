@@ -38,9 +38,9 @@ spring:
       on-profile: prod
   datasource:
     driverClassName: org.postgresql.Driver
-    url: {db.url}
-    username: {db.username}
-    password: {db.password}
+    url: { db.url }
+    username: { db.username }
+    password: { db.password }
   jpa:
     open-in-view: false
     hibernate:
