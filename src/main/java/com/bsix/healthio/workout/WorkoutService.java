@@ -16,16 +16,15 @@ public class WorkoutService {
   private final WorkoutRepository workoutRepository;
 
   Page<Workout> getWorkoutPage(@Valid WorkoutPageRequest request) {
-    return workoutRepository
-        .findAllByOwnerAndDateBetweenAndCaloriesBurnedBetweenAndDurationMinutesBetween(
-            request.owner(),
-            request.dateStart(),
-            request.dateEnd(),
-            request.burnedMin(),
-            request.burnedMax(),
-            request.durationMin(),
-            request.durationMax(),
-            request.pageable());
+    return workoutRepository.findWorkoutPage(
+        request.owner(),
+        request.dateStart(),
+        request.dateEnd(),
+        request.burnedMin(),
+        request.burnedMax(),
+        request.durationMin(),
+        request.durationMax(),
+        request.pageable());
   }
 
   Workout postWorkout(@Valid WorkoutMutateRequest request) {
