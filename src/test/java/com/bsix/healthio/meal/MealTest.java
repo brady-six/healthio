@@ -67,7 +67,7 @@ public class MealTest {
       new MealPageRequest(
           "1",
           DEFAULT_DATE_START,
-          DEFAULT_DATE_END,
+          Instant.now(),
           DEFAULT_CONSUMED_MIN,
           DEFAULT_CONSUMED_MAX,
           DEFAULT_MEAL_PAGEABLE);
