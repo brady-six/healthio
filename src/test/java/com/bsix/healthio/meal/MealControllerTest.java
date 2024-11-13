@@ -6,8 +6,7 @@ import static com.bsix.healthio.meal.MealTest.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -100,5 +99,22 @@ public class MealControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(DEFAULT_MEAL_MUTATE_BODY)))
         .andExpect(matchMealEntity());
+  }
+
+  @Test
+  void putMeal_ShouldReturnNoContent() throws Exception {
+    when(mealService.findMeal(any(), any())).thenReturn(DEFAULT_MEAL);
+
+    doNothing().when(mealService).putMeal(any(), any());
+
+    mockMvc
+        .perform(
+            put(ROOT_URI + "/" + DEFAULT_MEAL.getId())
+                .with(jwt().jwt(DEFAULT_JWT))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(DEFAULT_MEAL_MUTATE_BODY)))
+        .andExpect(status().isNoContent())
+        .andExpect(header().string(HttpHeaders.ALLOW, HttpMethod.PUT.name()));
   }
 }
