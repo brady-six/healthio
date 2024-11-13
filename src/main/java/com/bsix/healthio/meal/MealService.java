@@ -1,5 +1,6 @@
 package com.bsix.healthio.meal;
 
+import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
@@ -30,5 +31,21 @@ public class MealService {
     meal.setTotalCalories(Meal.calculateTotalCalories(request.body().foods()));
 
     return mealRepository.save(meal);
+  }
+
+  void putMeal(UUID id, MealMutateRequest request) {
+    Meal meal = findMeal(id, request.owner());
+
+    meal.setDate(request.body().date());
+    meal.setFoods(request.body().foods());
+    meal.setTotalCalories(Meal.calculateTotalCalories(request.body().foods()));
+
+    mealRepository.save(meal);
+  }
+
+  Meal findMeal(UUID id, String owner) {
+    return mealRepository
+        .findByIdAndOwner(id, owner)
+        .orElseThrow(() -> new MealNotFoundException(id));
   }
 }

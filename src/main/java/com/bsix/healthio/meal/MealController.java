@@ -2,6 +2,7 @@ package com.bsix.healthio.meal;
 
 import java.time.Instant;
 import java.util.Optional;
+import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -82,5 +83,15 @@ public class MealController {
     return ResponseEntity.created(model.getRequiredLink(IanaLinkRelations.SELF).toUri())
         .allow(HttpMethod.POST)
         .body(model);
+  }
+
+  @PutMapping("/{id}")
+  ResponseEntity<Void> putMeal(
+      @AuthenticationPrincipal Jwt jwt, @PathVariable String id, @RequestBody MealMutateBody body) {
+    MealMutateRequest request = new MealMutateRequest(jwt.getSubject(), body);
+
+    mealService.putMeal(UUID.fromString(id), request);
+
+    return ResponseEntity.noContent().allow(HttpMethod.PUT).build();
   }
 }

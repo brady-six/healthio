@@ -1,6 +1,7 @@
 package com.bsix.healthio.meal;
 
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,4 +15,6 @@ public interface MealRepository extends JpaRepository<Meal, UUID> {
       Integer calorieMin,
       Integer calorieMax,
       Pageable pageable);
+
+  Optional<Meal> findByIdAndOwner(UUID id, String owner);
 }
