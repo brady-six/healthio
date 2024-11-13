@@ -86,15 +86,20 @@ public class WorkoutControllerTest {
   }
 
   @Test
-  void getWorkouts_WithNoParams_ShouldUseDefaults() throws Exception {
+  void getWorkouts_WithDefaultParams_ShouldUseDefaults() throws Exception {
 
     when(workoutService.getWorkoutPage(any())).thenReturn(DEFAULT_WORKOUT_PAGE);
 
     when(workoutAssembler.toModel(any())).thenReturn(DEFAULT_WORKOUT_ENTITY);
 
+    Instant dateEnd = Instant.now();
+
     mockMvc
         .perform(
-            get("/api/v1/workouts").with(jwt().jwt(DEFAULT_JWT)).accept(MediaType.APPLICATION_JSON))
+            get("/api/v1/workouts")
+                .with(jwt().jwt(DEFAULT_JWT))
+                .param("dateEnd", dateEnd.toString())
+                .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(header().string(HttpHeaders.ALLOW, HttpMethod.GET.name()));
@@ -104,7 +109,7 @@ public class WorkoutControllerTest {
             new WorkoutPageRequest(
                 DEFAULT_JWT.getSubject(),
                 DEFAULT_DATE_START,
-                DEFAULT_DATE_END,
+                dateEnd,
                 DEFAULT_BURNED_MIN,
                 DEFAULT_BURNED_MAX,
                 DEFAULT_DURATION_MIN,

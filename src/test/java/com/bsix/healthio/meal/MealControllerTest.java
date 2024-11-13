@@ -42,12 +42,15 @@ public class MealControllerTest {
   }
 
   @Test
-  void getMeals_WithNoParams_ShouldUseDefaults() throws Exception {
+  void getMeals_WithDefaultParams_ShouldUseDefaults() throws Exception {
     when(mealService.getMeals(any())).thenReturn(DEFAULT_MEAL_PAGE);
 
     when(mealAssembler.toModel(any())).thenReturn(DEFAULT_MEAL_ENTITY);
 
-    mockMvc.perform(get(ROOT_URI).with(jwt().jwt(DEFAULT_JWT)));
+    mockMvc.perform(
+        get(ROOT_URI)
+            .with(jwt().jwt(DEFAULT_JWT))
+            .param("dateEnd", DEFAULT_MEAL_PAGE_REQUEST.dateEnd().toString()));
 
     verify(mealService, times(1)).getMeals(DEFAULT_MEAL_PAGE_REQUEST);
   }

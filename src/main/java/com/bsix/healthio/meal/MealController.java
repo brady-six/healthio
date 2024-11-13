@@ -26,7 +26,6 @@ public class MealController {
 
   static final String ROOT_URI = "/api/v1/meals";
   static final Instant DEFAULT_DATE_START = Instant.EPOCH;
-  static final Instant DEFAULT_DATE_END = Instant.now();
   static final Integer DEFAULT_CONSUMED_MIN = 1;
   static final Integer DEFAULT_CONSUMED_MAX = 100_000;
 
@@ -43,39 +42,6 @@ public class MealController {
     this.mealService = mealService;
     this.mealPageAssembler = mealPageAssembler;
     this.mealAssembler = mealAssembler;
-  }
-
-  @GetMapping
-  ResponseEntity<PagedModel<EntityModel<Meal>>> getMeals(
-      @AuthenticationPrincipal Jwt jwt,
-      @RequestParam Optional<Instant> dateStart,
-      @RequestParam Optional<Instant> dateEnd,
-      @RequestParam Optional<Integer> consumedMin,
-      @RequestParam Optional<Integer> consumedMax,
-      @PageableDefault
-          @SortDefault.SortDefaults({
-            @SortDefault(sort = "date", direction = Sort.Direction.DESC),
-            @SortDefault(sort = "totalCalories", direction = Sort.Direction.DESC)
-          })
-          Pageable pageable) {
-    MealPageRequest request =
-        new MealPageRequest(
-            jwt.getSubject(),
-            dateStart.orElse(DEFAULT_DATE_START),
-            dateEnd.orElse(DEFAULT_DATE_END),
-            consumedMin.orElse(DEFAULT_CONSUMED_MIN),
-            consumedMax.orElse(DEFAULT_CONSUMED_MAX),
-            pageable);
-
-    Page<Meal> page = mealService.getMeals(request);
-
-    PagedModel<EntityModel<Meal>> model =
-        mealPageAssembler.toModel(page, mealAssembler, Link.of(ROOT_URI, IanaLinkRelations.SELF));
-
-    return ResponseEntity.ok()
-        .allow(HttpMethod.GET)
-        .contentType(MediaType.APPLICATION_JSON)
-        .body(model);
   }
 
   @PostMapping
@@ -107,5 +73,38 @@ public class MealController {
     mealService.deleteMeal(UUID.fromString(id), jwt.getSubject());
 
     return ResponseEntity.noContent().allow(HttpMethod.DELETE).build();
+  }
+
+  @GetMapping
+  ResponseEntity<PagedModel<EntityModel<Meal>>> getMeals(
+      @AuthenticationPrincipal Jwt jwt,
+      @RequestParam Optional<Instant> dateStart,
+      @RequestParam Optional<Instant> dateEnd,
+      @RequestParam Optional<Integer> consumedMin,
+      @RequestParam Optional<Integer> consumedMax,
+      @PageableDefault
+          @SortDefault.SortDefaults({
+            @SortDefault(sort = "date", direction = Sort.Direction.DESC),
+            @SortDefault(sort = "totalCalories", direction = Sort.Direction.DESC)
+          })
+          Pageable pageable) {
+    MealPageRequest request =
+        new MealPageRequest(
+            jwt.getSubject(),
+            dateStart.orElse(DEFAULT_DATE_START),
+            dateEnd.orElse(Instant.now()),
+            consumedMin.orElse(DEFAULT_CONSUMED_MIN),
+            consumedMax.orElse(DEFAULT_CONSUMED_MAX),
+            pageable);
+
+    Page<Meal> page = mealService.getMeals(request);
+
+    PagedModel<EntityModel<Meal>> model =
+        mealPageAssembler.toModel(page, mealAssembler, Link.of(ROOT_URI, IanaLinkRelations.SELF));
+
+    return ResponseEntity.ok()
+        .allow(HttpMethod.GET)
+        .contentType(MediaType.APPLICATION_JSON)
+        .body(model);
   }
 }

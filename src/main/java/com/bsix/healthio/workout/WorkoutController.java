@@ -28,7 +28,6 @@ public class WorkoutController {
 
   public static final String ROOT_URI = "/api/v1/workouts";
   static final Instant DEFAULT_DATE_START = Instant.EPOCH;
-  static final Instant DEFAULT_DATE_END = Instant.now();
   static final Integer DEFAULT_BURNED_MIN = 1;
   static final Integer DEFAULT_BURNED_MAX = 9999;
   static final Integer DEFAULT_DURATION_MIN = 1;
@@ -61,7 +60,7 @@ public class WorkoutController {
         new WorkoutPageRequest(
             jwt.getSubject(),
             dateStart.orElse(DEFAULT_DATE_START),
-            dateEnd.orElse(DEFAULT_DATE_END),
+            dateEnd.orElse(Instant.now()),
             burnedMin.orElse(DEFAULT_BURNED_MIN),
             burnedMax.orElse(DEFAULT_BURNED_MAX),
             durationMin.orElse(DEFAULT_DURATION_MIN),
