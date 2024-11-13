@@ -6,8 +6,10 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.data.web.SortDefault;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.hateoas.Link;
@@ -47,7 +49,13 @@ public class WorkoutController {
       @RequestParam Optional<Integer> burnedMax,
       @RequestParam Optional<Integer> durationMin,
       @RequestParam Optional<Integer> durationMax,
-      @PageableDefault Pageable pageable) {
+      @PageableDefault
+          @SortDefault.SortDefaults({
+            @SortDefault(sort = "date", direction = Sort.Direction.DESC),
+            @SortDefault(sort = "caloriesBurned", direction = Sort.Direction.DESC),
+            @SortDefault(sort = "durationMinutes", direction = Sort.Direction.DESC)
+          })
+          Pageable pageable) {
 
     WorkoutPageRequest request =
         new WorkoutPageRequest(
