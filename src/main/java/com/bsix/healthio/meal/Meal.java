@@ -1,5 +1,6 @@
 package com.bsix.healthio.meal;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -14,13 +15,17 @@ public class Meal {
 
   private UUID id;
 
-  private String owner;
+  @JsonIgnore private String owner;
 
   private Instant date;
 
   private Integer totalCalories;
 
   private List<Food> foods;
+
+  static Integer calculateTotalCalories(List<Food> foods) {
+    return foods.stream().mapToInt(Food::getCalories).sum();
+  }
 
   @Data
   @NoArgsConstructor
