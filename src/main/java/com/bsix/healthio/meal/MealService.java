@@ -3,12 +3,10 @@ package com.bsix.healthio.meal;
 import jakarta.validation.Valid;
 import java.time.Instant;
 import java.util.UUID;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
-@Slf4j
 @Validated
 @Service
 public class MealService {
