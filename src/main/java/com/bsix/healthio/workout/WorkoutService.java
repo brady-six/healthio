@@ -4,7 +4,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
+@Validated
 @RequiredArgsConstructor
 @Service
 public class WorkoutService {
