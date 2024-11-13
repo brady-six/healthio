@@ -1,6 +1,7 @@
 package com.bsix.healthio.meal;
 
 import jakarta.validation.Valid;
+import java.time.Instant;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -29,7 +30,7 @@ public class MealService {
   Meal postMeal(@Valid MealMutateRequest request) {
     Meal meal = new Meal();
 
-    meal.setDate(request.body().date());
+    meal.setDate(request.body().date() != null ? request.body().date() : Instant.now());
     meal.setFoods(request.body().foods());
     meal.setTotalCalories(Meal.calculateTotalCalories(request.body().foods()));
 
