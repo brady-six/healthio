@@ -117,4 +117,14 @@ public class MealControllerTest {
         .andExpect(status().isNoContent())
         .andExpect(header().string(HttpHeaders.ALLOW, HttpMethod.PUT.name()));
   }
+
+  @Test
+  void deleteMeal_ShouldReturnNoContent() throws Exception {
+    doNothing().when(mealService).deleteMeal(any(), any());
+
+    mockMvc
+        .perform(delete(ROOT_URI + "/" + DEFAULT_MEAL.getId()).with(jwt().jwt(DEFAULT_JWT)))
+        .andExpect(status().isNoContent())
+        .andExpect(header().string(HttpHeaders.ALLOW, HttpMethod.DELETE.name()));
+  }
 }
