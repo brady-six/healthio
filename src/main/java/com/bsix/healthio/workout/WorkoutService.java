@@ -20,7 +20,8 @@ public class WorkoutService {
             request.burnedMin(),
             request.burnedMax(),
             request.durationMin(),
-            request.durationMax());
+            request.durationMax(),
+            request.pageable());
   }
 
   Workout postWorkout(@Valid WorkoutMutateRequest request) {
