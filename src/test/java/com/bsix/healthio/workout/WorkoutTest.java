@@ -26,22 +26,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Import(TestConfig.class)
 public class WorkoutTest {
 
-  static final Sort DEFAULT_WORKOUT_DATE_SORT = Sort.by(Sort.Order.desc("date"));
-
-  static final Sort DEFAULT_WORKOUT_CALORIES_BURNED_SORT =
-      Sort.by(Sort.Order.desc("caloriesBurned"));
-
-  static final Sort DEFAULT_WORKOUT_DURATION_MINUTES_SORT =
-      Sort.by(Sort.Order.desc("durationMinutes"));
-
-  static final Pageable DEFAULT_WORKOUT_PAGEABLE =
-      PageRequest.of(
-          0,
-          10,
-          DEFAULT_WORKOUT_DATE_SORT
-              .and(DEFAULT_WORKOUT_CALORIES_BURNED_SORT)
-              .and(DEFAULT_WORKOUT_DURATION_MINUTES_SORT));
-
   public static final List<Workout> DEFAULT_WORKOUT_LIST =
       List.of(
           new Workout(UUID.randomUUID(), "1", Instant.now().minusSeconds(10 * 86400), 300, 30),
@@ -49,20 +33,28 @@ public class WorkoutTest {
           new Workout(UUID.randomUUID(), "1", Instant.now().minusSeconds(4 * 86400), 621, 60),
           new Workout(UUID.randomUUID(), "1", Instant.now().minusSeconds(2 * 86400), 250, 25),
           new Workout(UUID.randomUUID(), "1", Instant.now().minusSeconds(86400), 500, 50));
-
   public static final Workout DEFAULT_WORKOUT = DEFAULT_WORKOUT_LIST.get(0);
-
   public static final WorkoutMutateBody DEFAULT_WORKOUT_MUTATE_BODY =
       new WorkoutMutateBody(
           DEFAULT_WORKOUT.getDate(),
           DEFAULT_WORKOUT.getCaloriesBurned(),
           DEFAULT_WORKOUT.getDurationMinutes());
-
   public static final EntityModel<Workout> DEFAULT_WORKOUT_ENTITY =
       EntityModel.of(
           DEFAULT_WORKOUT,
           Link.of("/api/v1/workouts/" + DEFAULT_WORKOUT.getId(), IanaLinkRelations.SELF));
-
+  static final Sort DEFAULT_WORKOUT_DATE_SORT = Sort.by(Sort.Order.desc("date"));
+  static final Sort DEFAULT_WORKOUT_CALORIES_BURNED_SORT =
+      Sort.by(Sort.Order.desc("caloriesBurned"));
+  static final Sort DEFAULT_WORKOUT_DURATION_MINUTES_SORT =
+      Sort.by(Sort.Order.desc("durationMinutes"));
+  static final Pageable DEFAULT_WORKOUT_PAGEABLE =
+      PageRequest.of(
+          0,
+          10,
+          DEFAULT_WORKOUT_DATE_SORT
+              .and(DEFAULT_WORKOUT_CALORIES_BURNED_SORT)
+              .and(DEFAULT_WORKOUT_DURATION_MINUTES_SORT));
   public static final Page<Workout> DEFAULT_WORKOUT_PAGE =
       new PageImpl<>(DEFAULT_WORKOUT_LIST, DEFAULT_WORKOUT_PAGEABLE, DEFAULT_WORKOUT_LIST.size());
 

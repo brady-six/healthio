@@ -30,12 +30,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Import(TestConfig.class)
 public class MealTest {
 
-  static final Sort DEFAULT_MEAL_DATE_SORT = Sort.by(Sort.Order.desc("date"));
-  static final Sort DEFAULT_MEAL_TOTAL_CALORIES_SORT = Sort.by(Sort.Order.desc("totalCalories"));
-
-  static final Pageable DEFAULT_MEAL_PAGEABLE =
-      PageRequest.of(0, 10, DEFAULT_MEAL_DATE_SORT.and(DEFAULT_MEAL_TOTAL_CALORIES_SORT));
-
   public static final List<Meal> DEFAULT_MEAL_LIST =
       List.of(
           new Meal(
@@ -62,7 +56,10 @@ public class MealTest {
               Instant.now().minusSeconds(4 * 3600),
               520,
               List.of(new Meal.Food("Sandwich", 400), new Meal.Food("Banana", 120))));
-
+  static final Sort DEFAULT_MEAL_DATE_SORT = Sort.by(Sort.Order.desc("date"));
+  static final Sort DEFAULT_MEAL_TOTAL_CALORIES_SORT = Sort.by(Sort.Order.desc("totalCalories"));
+  static final Pageable DEFAULT_MEAL_PAGEABLE =
+      PageRequest.of(0, 10, DEFAULT_MEAL_DATE_SORT.and(DEFAULT_MEAL_TOTAL_CALORIES_SORT));
   static final Page DEFAULT_MEAL_PAGE =
       new PageImpl<>(DEFAULT_MEAL_LIST, DEFAULT_MEAL_PAGEABLE, DEFAULT_MEAL_LIST.size());
 
@@ -84,6 +81,9 @@ public class MealTest {
       new MealMutateBody(
           Instant.now().minusSeconds(86400),
           List.of(new Meal.Food("Smoothie", 350), new Meal.Food("Pizza", 600)));
+  @Autowired private TestRestTemplate http;
+  @Autowired private MealRepository mealRepository;
+  private List<Meal> meals;
 
   static final ResultMatcher matchMealEntity() {
     return result -> {
@@ -95,12 +95,6 @@ public class MealTest {
       jsonPath("$.owner").doesNotExist().match(result);
     };
   }
-
-  @Autowired private TestRestTemplate http;
-
-  @Autowired private MealRepository mealRepository;
-
-  private List<Meal> meals;
 
   @BeforeEach
   void beforeEach() {
