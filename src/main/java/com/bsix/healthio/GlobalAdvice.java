@@ -1,6 +1,9 @@
 package com.bsix.healthio;
 
 import jakarta.validation.ConstraintViolationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.ErrorResponseException;
@@ -10,6 +13,17 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 @RestControllerAdvice
 public class GlobalAdvice {
+
+  private static final Logger log = LoggerFactory.getLogger(GlobalAdvice.class);
+
+  @ExceptionHandler(PropertyReferenceException.class)
+  ProblemDetail handlePropertyReferenceException(PropertyReferenceException e) {
+    HttpStatusCode code = HttpStatusCode.valueOf(400);
+    ProblemDetail pd = ProblemDetail.forStatus(code);
+    pd.setTitle("Unknown Property");
+    pd.setDetail(e.getMessage());
+    return handleErrorResponseException(new ErrorResponseException(code, pd, e));
+  }
 
   @ExceptionHandler(ErrorResponseException.class)
   ProblemDetail handleErrorResponseException(ErrorResponseException e) {
