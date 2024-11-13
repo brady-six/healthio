@@ -21,4 +21,14 @@ public class MealService {
         request.calorieMax(),
         request.pageable());
   }
+
+  Meal postMeal(MealMutateRequest request) {
+    Meal meal = new Meal();
+
+    meal.setDate(request.body().date());
+    meal.setFoods(request.body().foods());
+    meal.setTotalCalories(Meal.calculateTotalCalories(request.body().foods()));
+
+    return mealRepository.save(meal);
+  }
 }

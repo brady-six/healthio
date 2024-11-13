@@ -69,4 +69,18 @@ public class MealController {
         .contentType(MediaType.APPLICATION_JSON)
         .body(model);
   }
+
+  @PostMapping
+  ResponseEntity<EntityModel<Meal>> postMeal(
+      @AuthenticationPrincipal Jwt jwt, @RequestBody MealMutateBody body) {
+    MealMutateRequest request = new MealMutateRequest(jwt.getSubject(), body);
+
+    Meal meal = mealService.postMeal(request);
+
+    EntityModel<Meal> model = mealAssembler.toModel(meal);
+
+    return ResponseEntity.created(model.getRequiredLink(IanaLinkRelations.SELF).toUri())
+        .allow(HttpMethod.POST)
+        .body(model);
+  }
 }
