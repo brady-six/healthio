@@ -30,6 +30,22 @@ public class Meal {
 
   @ElementCollection private List<Food> foods;
 
+  public String toAiPromptString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("On " + this.getDate() + ", I ate ");
+    if (this.getFoods().size() == 1)
+      return sb.toString() + this.getFoods().get(0).toAiPromptString() + ".";
+
+    for (int i = 0; i < this.getFoods().size() - 1; i++) {
+      sb.append(this.getFoods().get(i).toAiPromptString()).append(", ");
+    }
+
+    sb.append("and " + this.getFoods().get(this.getFoods().size() - 1).toAiPromptString())
+        .append(".");
+
+    return sb.toString();
+  }
+
   static Integer calculateTotalCalories(List<Food> foods) {
     return foods.stream().mapToInt(Food::getCalories).sum();
   }
@@ -46,5 +62,9 @@ public class Meal {
     @Min(value = 1, message = "You cannot add a food with less than 1 calorie!")
     @Max(value = 10_000, message = "You cannot add a food with more than 10,000 calories!")
     private Integer calories;
+
+    public String toAiPromptString() {
+      return this.getCalories() + " calories of " + this.getName();
+    }
   }
 }
