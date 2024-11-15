@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Login;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import com.bsix.healthio.TestSecurityConfig;
+import com.bsix.healthio.SecurityConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Instant;
 import java.util.List;
@@ -24,7 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 @WebMvcTest(MealController.class)
-@Import({TestSecurityConfig.class, MealAssembler.class})
+@Import({MealAssembler.class, SecurityConfig.class})
 public class MealControllerTest {
 
   @Autowired MockMvc http;
