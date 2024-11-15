@@ -1,9 +1,15 @@
 package com.bsix.healthio.workout;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.openai.OpenAiChatModel;
+import org.springframework.ai.openai.api.OpenAiApi;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -20,6 +26,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 
 @RequiredArgsConstructor
 @RestController
@@ -38,6 +45,9 @@ public class WorkoutController {
   private final PagedResourcesAssembler<Workout> workoutPageAssembler;
 
   private final WorkoutAssembler workoutAssembler;
+
+  @Value("${spring.ai.openai.api-key}")
+  private String apiKey;
 
   @GetMapping
   ResponseEntity<PagedModel<EntityModel<Workout>>> getWorkoutPage(
@@ -112,5 +122,40 @@ public class WorkoutController {
     workoutService.deleteWorkout(UUID.fromString(id), user.getAttribute("sub"));
 
     return ResponseEntity.noContent().allow(HttpMethod.DELETE).build();
+  }
+
+  @GetMapping("/advice")
+  Flux<String> getWorkoutAdvice(
+      @AuthenticationPrincipal OAuth2User user, @RequestParam String message) {
+
+    StringBuilder sb = new StringBuilder();
+
+    WorkoutPageRequest req =
+        new WorkoutPageRequest(
+            user.getAttribute("sub"),
+            Instant.EPOCH,
+            Instant.now(),
+            DEFAULT_BURNED_MIN,
+            DEFAULT_BURNED_MAX,
+            DEFAULT_DURATION_MIN,
+            DEFAULT_DURATION_MAX,
+            Pageable.ofSize(7));
+
+    Page<Workout> page = workoutService.getWorkoutPage(req);
+
+    List<Workout> workouts = page.getContent();
+
+    sb.append("Here's some of my recent workouts:\n");
+
+    workouts.forEach(w -> sb.append(w.toAiPromptString()).append("\n"));
+
+    sb.append("\nWith that in that in mind, answer this:\n");
+    sb.append(message);
+
+    OpenAiApi api = new OpenAiApi(apiKey);
+    ChatModel model = new OpenAiChatModel(api);
+    ChatClient client = ChatClient.builder(model).build();
+
+    return client.prompt().user(sb.toString()).stream().content();
   }
 }
