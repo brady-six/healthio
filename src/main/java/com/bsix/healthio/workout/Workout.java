@@ -28,4 +28,14 @@ public class Workout {
   private Integer caloriesBurned;
 
   private Integer durationMinutes;
+
+  public String toAiPromptString() {
+    return "On "
+        + this.getDate()
+        + ", I burned "
+        + this.getCaloriesBurned()
+        + " calories and exercised for "
+        + this.getDurationMinutes()
+        + " minutes.";
+  }
 }
