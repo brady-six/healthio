@@ -2,6 +2,11 @@ package com.bsix.healthio.meal;
 
 import java.time.Instant;
 import java.util.*;
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.openai.OpenAiChatModel;
+import org.springframework.ai.openai.api.OpenAiApi;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -18,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 
 @RestController
 @RequestMapping("/api/v1/meals")
@@ -42,6 +48,9 @@ public class MealController {
     this.mealPageAssembler = mealPageAssembler;
     this.mealAssembler = mealAssembler;
   }
+
+  @Value("${spring.ai.openai.api-key}")
+  private String apiKey;
 
   @PostMapping
   ResponseEntity<EntityModel<Meal>> postMeal(
@@ -108,5 +117,38 @@ public class MealController {
         .allow(HttpMethod.GET)
         .contentType(MediaType.APPLICATION_JSON)
         .body(model);
+  }
+
+  @GetMapping("/advice")
+  Flux<String> getMealAdvice(
+      @AuthenticationPrincipal OAuth2User user, @RequestParam String message) {
+
+    StringBuilder sb = new StringBuilder();
+
+    MealPageRequest req =
+        new MealPageRequest(
+            user.getAttribute("sub"),
+            Instant.EPOCH,
+            Instant.now(),
+            DEFAULT_CONSUMED_MIN,
+            DEFAULT_CONSUMED_MAX,
+            Pageable.ofSize(7));
+
+    Page<Meal> page = mealService.getMeals(req);
+
+    List<Meal> meals = page.getContent();
+
+    sb.append("Here's what I've been eating lately:\n");
+
+    meals.forEach(m -> sb.append(m.toAiPromptString()).append("\n"));
+
+    sb.append("\nWith that in that in mind, answer this:\n");
+    sb.append(message);
+
+    OpenAiApi api = new OpenAiApi(apiKey);
+    ChatModel model = new OpenAiChatModel(api);
+    ChatClient client = ChatClient.builder(model).build();
+
+    return client.prompt().user(sb.toString()).stream().content();
   }
 }
