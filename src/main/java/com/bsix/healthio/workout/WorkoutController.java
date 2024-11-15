@@ -18,7 +18,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
@@ -41,7 +41,7 @@ public class WorkoutController {
 
   @GetMapping
   ResponseEntity<PagedModel<EntityModel<Workout>>> getWorkoutPage(
-      @AuthenticationPrincipal Jwt jwt,
+      @AuthenticationPrincipal OAuth2User user,
       @RequestParam Optional<Instant> dateStart,
       @RequestParam Optional<Instant> dateEnd,
       @RequestParam Optional<Integer> burnedMin,
@@ -58,7 +58,7 @@ public class WorkoutController {
 
     WorkoutPageRequest request =
         new WorkoutPageRequest(
-            jwt.getSubject(),
+            user.getAttribute("sub"),
             dateStart.orElse(DEFAULT_DATE_START),
             dateEnd.orElse(Instant.now()),
             burnedMin.orElse(DEFAULT_BURNED_MIN),
@@ -81,8 +81,8 @@ public class WorkoutController {
 
   @PostMapping
   ResponseEntity<EntityModel<Workout>> postWorkout(
-      @AuthenticationPrincipal Jwt jwt, @RequestBody WorkoutMutateBody body) {
-    WorkoutMutateRequest request = new WorkoutMutateRequest(jwt.getSubject(), body);
+      @AuthenticationPrincipal OAuth2User user, @RequestBody WorkoutMutateBody body) {
+    WorkoutMutateRequest request = new WorkoutMutateRequest(user.getAttribute("sub"), body);
 
     Workout workout = workoutService.postWorkout(request);
 
@@ -96,10 +96,10 @@ public class WorkoutController {
 
   @PutMapping("/{id}")
   ResponseEntity<Void> putWorkout(
-      @AuthenticationPrincipal Jwt jwt,
+      @AuthenticationPrincipal OAuth2User user,
       @PathVariable String id,
       @RequestBody WorkoutMutateBody body) {
-    WorkoutMutateRequest request = new WorkoutMutateRequest(jwt.getSubject(), body);
+    WorkoutMutateRequest request = new WorkoutMutateRequest(user.getAttribute("sub"), body);
 
     workoutService.putWorkout(UUID.fromString(id), request);
 
@@ -107,8 +107,9 @@ public class WorkoutController {
   }
 
   @DeleteMapping("/{id}")
-  ResponseEntity<Void> deleteWorkout(@AuthenticationPrincipal Jwt jwt, @PathVariable String id) {
-    workoutService.deleteWorkout(UUID.fromString(id), jwt.getSubject());
+  ResponseEntity<Void> deleteWorkout(
+      @AuthenticationPrincipal OAuth2User user, @PathVariable String id) {
+    workoutService.deleteWorkout(UUID.fromString(id), user.getAttribute("sub"));
 
     return ResponseEntity.noContent().allow(HttpMethod.DELETE).build();
   }
