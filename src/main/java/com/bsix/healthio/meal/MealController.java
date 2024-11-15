@@ -16,7 +16,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -45,8 +45,8 @@ public class MealController {
 
   @PostMapping
   ResponseEntity<EntityModel<Meal>> postMeal(
-      @AuthenticationPrincipal Jwt jwt, @RequestBody MealMutateBody body) {
-    MealMutateRequest request = new MealMutateRequest(jwt.getSubject(), body);
+      @AuthenticationPrincipal OAuth2User user, @RequestBody MealMutateBody body) {
+    MealMutateRequest request = new MealMutateRequest(user.getAttribute("sub"), body);
 
     Meal meal = mealService.postMeal(request);
 
@@ -59,8 +59,10 @@ public class MealController {
 
   @PutMapping("/{id}")
   ResponseEntity<Void> putMeal(
-      @AuthenticationPrincipal Jwt jwt, @PathVariable String id, @RequestBody MealMutateBody body) {
-    MealMutateRequest request = new MealMutateRequest(jwt.getSubject(), body);
+      @AuthenticationPrincipal OAuth2User user,
+      @PathVariable String id,
+      @RequestBody MealMutateBody body) {
+    MealMutateRequest request = new MealMutateRequest(user.getAttribute("sub"), body);
 
     mealService.putMeal(UUID.fromString(id), request);
 
@@ -68,15 +70,16 @@ public class MealController {
   }
 
   @DeleteMapping("/{id}")
-  ResponseEntity<Void> deleteMeal(@AuthenticationPrincipal Jwt jwt, @PathVariable String id) {
-    mealService.deleteMeal(UUID.fromString(id), jwt.getSubject());
+  ResponseEntity<Void> deleteMeal(
+      @AuthenticationPrincipal OAuth2User user, @PathVariable String id) {
+    mealService.deleteMeal(UUID.fromString(id), user.getAttribute("sub"));
 
     return ResponseEntity.noContent().allow(HttpMethod.DELETE).build();
   }
 
   @GetMapping
   ResponseEntity<PagedModel<EntityModel<Meal>>> getMeals(
-      @AuthenticationPrincipal Jwt jwt,
+      @AuthenticationPrincipal OAuth2User user,
       @RequestParam Optional<Instant> dateStart,
       @RequestParam Optional<Instant> dateEnd,
       @RequestParam Optional<Integer> consumedMin,
@@ -89,7 +92,7 @@ public class MealController {
           Pageable pageable) {
     MealPageRequest request =
         new MealPageRequest(
-            jwt.getSubject(),
+            user.getAttribute("sub"),
             dateStart.orElse(DEFAULT_DATE_START),
             dateEnd.orElse(Instant.now()),
             consumedMin.orElse(DEFAULT_CONSUMED_MIN),
