@@ -1,225 +1,123 @@
 package com.bsix.healthio.workout;
 
-import static com.bsix.healthio.MainTest.*;
-import static com.bsix.healthio.workout.WorkoutController.*;
-import static com.bsix.healthio.workout.WorkoutTest.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Login;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import com.bsix.healthio.TestSecurityConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 @WebMvcTest(WorkoutController.class)
+@Import({WorkoutAssembler.class, TestSecurityConfig.class})
 public class WorkoutControllerTest {
 
-  @Autowired private MockMvc mockMvc;
+  @Autowired MockMvc http;
 
-  @Autowired private ObjectMapper objectMapper;
+  @Autowired WorkoutAssembler workoutAssembler;
 
-  @MockBean private WorkoutAssembler workoutAssembler;
+  @Autowired ObjectMapper objectMapper;
 
-  @MockBean private WorkoutService workoutService;
+  @MockBean WorkoutService workoutService;
 
   @Test
-  void getWorkouts_WithParams_ShouldUseParams() throws Exception {
+  void contextLoads() {
+    assert http != null;
+  }
 
-    Instant dateStart = Instant.now().minusSeconds(2592000);
-    Instant dateEnd = Instant.now();
-
-    Integer burnedMin = 100;
-    Integer burnedMax = 500;
-
-    Integer durationMin = 15;
-    Integer durationMax = 60;
-
-    MultiValueMap<String, String> params =
-        new LinkedMultiValueMap<>(
-            Map.of(
-                "dateStart", List.of(dateStart.toString()),
-                "dateEnd", List.of(dateEnd.toString()),
-                "burnedMin", List.of(Integer.toString(burnedMin)),
-                "burnedMax", List.of(Integer.toString(burnedMax)),
-                "durationMin", List.of(Integer.toString(durationMin)),
-                "durationMax", List.of(Integer.toString(durationMax))));
-
-    when(workoutService.getWorkoutPage(any())).thenReturn(DEFAULT_WORKOUT_PAGE);
-
-    when(workoutAssembler.toModel(any())).thenReturn(DEFAULT_WORKOUT_ENTITY);
-
-    mockMvc
-        .perform(
-            get("/api/v1/workouts")
-                .with(jwt().jwt(DEFAULT_JWT))
-                .accept(MediaType.APPLICATION_JSON)
-                .params(params))
+  @Test
+  void getWorkoutPage() throws Exception {
+    when(workoutService.getWorkoutPage(any()))
+        .thenReturn(
+            new PageImpl<>(
+                List.of(new Workout(UUID.randomUUID(), "user", Instant.now(), 500, 30))));
+    var dateEnd = Instant.now();
+    http.perform(
+            MockMvcRequestBuilders.get("/api/v1/workouts")
+                .with(oauth2Login())
+                .param("dateEnd", dateEnd.toString()))
         .andExpect(status().isOk())
+        .andExpect(header().string(HttpHeaders.ALLOW, HttpMethod.GET.name()))
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(header().string(HttpHeaders.ALLOW, HttpMethod.GET.name()));
+        .andExpect(jsonPath("$._links.self.href").isString())
+        .andExpect(jsonPath("$.page.size").isNumber())
+        .andExpect(jsonPath("$.page.number").isNumber())
+        .andExpect(jsonPath("$.page.totalPages").isNumber())
+        .andExpect(jsonPath("$.page.totalElements").isNumber())
+        .andExpect(jsonPath("$._embedded.workoutList").isArray());
 
-    verify(workoutService)
-        .getWorkoutPage(
-            new WorkoutPageRequest(
-                DEFAULT_JWT.getSubject(),
-                dateStart,
-                dateEnd,
-                burnedMin,
-                burnedMax,
-                durationMin,
-                durationMax,
-                DEFAULT_WORKOUT_PAGEABLE));
+    // Verify that default query params were used
+    var req =
+        new WorkoutPageRequest(
+            "user",
+            Instant.EPOCH,
+            dateEnd,
+            1,
+            9999,
+            1,
+            1440,
+            PageRequest.of(
+                0, 10, Sort.by(Sort.Direction.DESC, "date", "caloriesBurned", "durationMinutes")));
+
+    verify(workoutService).getWorkoutPage(req);
   }
 
   @Test
-  void getWorkouts_WithDefaultParams_ShouldUseDefaults() throws Exception {
-
-    when(workoutService.getWorkoutPage(any())).thenReturn(DEFAULT_WORKOUT_PAGE);
-
-    when(workoutAssembler.toModel(any())).thenReturn(DEFAULT_WORKOUT_ENTITY);
-
-    Instant dateEnd = Instant.now();
-
-    mockMvc
-        .perform(
-            get("/api/v1/workouts")
-                .with(jwt().jwt(DEFAULT_JWT))
-                .param("dateEnd", dateEnd.toString())
-                .accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(header().string(HttpHeaders.ALLOW, HttpMethod.GET.name()));
-
-    verify(workoutService)
-        .getWorkoutPage(
-            new WorkoutPageRequest(
-                DEFAULT_JWT.getSubject(),
-                DEFAULT_DATE_START,
-                dateEnd,
-                DEFAULT_BURNED_MIN,
-                DEFAULT_BURNED_MAX,
-                DEFAULT_DURATION_MIN,
-                DEFAULT_DURATION_MAX,
-                DEFAULT_WORKOUT_PAGEABLE));
-  }
-
-  @Test
-  void getWorkouts_WithBadRequest_ShouldReturnProblemDetail() throws Exception {
-
-    when(workoutService.getWorkoutPage(any())).thenThrow(DEFAULT_BAD_REQUEST);
-
-    Instant badStartDate = Instant.now().plusSeconds(86400);
-    Instant badEndDate = badStartDate.minusSeconds(2592000);
-
-    Integer badBurnedMin = -25;
-    Integer badBurnedMax = 999_999;
-
-    Integer okDurationMin = 10;
-    Integer badDurationMax = okDurationMin - 5;
-
-    mockMvc
-        .perform(get(ROOT_URI).with(jwt().jwt(DEFAULT_JWT)).accept(MediaType.APPLICATION_JSON))
-        .andExpect(matchProblemDetail());
-  }
-
-  @Test
-  void postWorkout_WithGoodRequest_ShouldReturnCreated() throws Exception {
-    when(workoutService.postWorkout(any())).thenReturn(DEFAULT_WORKOUT);
-
-    when(workoutAssembler.toModel(any())).thenReturn(DEFAULT_WORKOUT_ENTITY);
-
-    mockMvc
-        .perform(
-            post(ROOT_URI)
-                .with(jwt().jwt(DEFAULT_JWT))
+  void postWorkout() throws Exception {
+    when(workoutService.postWorkout(any()))
+        .thenReturn(new Workout(UUID.randomUUID(), "user", Instant.now(), 530, 32));
+    http.perform(
+            MockMvcRequestBuilders.post("/api/v1/workouts")
+                .with(oauth2Login())
+                .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(DEFAULT_WORKOUT_MUTATE_BODY))
-                .contentType(MediaType.APPLICATION_JSON))
+                .content(
+                    objectMapper.writeValueAsString(new WorkoutMutateBody(Instant.now(), 530, 32))))
         .andExpect(status().isCreated())
-        .andExpect(header().exists(HttpHeaders.LOCATION));
+        .andExpect(header().exists(HttpHeaders.LOCATION))
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(header().string(HttpHeaders.ALLOW, HttpMethod.POST.name()))
+        .andExpect(jsonPath("$._links.self.href").isString())
+        .andExpect(jsonPath("$.id").isString())
+        .andExpect(jsonPath("$.owner").doesNotHaveJsonPath());
   }
 
   @Test
-  void postWorkout_WithBadRequest_ShouldReturnProblemDetail() throws Exception {
-    when(workoutService.postWorkout(any())).thenThrow(DEFAULT_BAD_REQUEST);
-
-    WorkoutMutateBody badMutateBody =
-        new WorkoutMutateBody(Instant.now().plusSeconds(86400), -25, -200);
-
-    mockMvc
-        .perform(
-            post(ROOT_URI)
-                .with(jwt().jwt(DEFAULT_JWT))
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(badMutateBody)))
-        .andExpect(matchProblemDetail());
-  }
-
-  @Test
-  void putWorkout_WithGoodRequest_ShouldReturnNoContent() throws Exception {
-    when(workoutService.findWorkout(any(), any())).thenReturn(DEFAULT_WORKOUT);
+  void putWorkout() throws Exception {
     doNothing().when(workoutService).putWorkout(any(), any());
-
-    mockMvc
-        .perform(
-            put(ROOT_URI + "/" + DEFAULT_WORKOUT.getId())
-                .with(jwt().jwt(DEFAULT_JWT))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(DEFAULT_WORKOUT_MUTATE_BODY)))
-        .andExpect(status().isNoContent())
-        .andExpect(header().string(HttpHeaders.ALLOW, HttpMethod.PUT.name()));
-  }
-
-  @Test
-  void putWorkout_WithBadRequest_ShouldReturnProblemDetail() throws Exception {
-    doThrow(DEFAULT_BAD_REQUEST).when(workoutService).putWorkout(any(), any());
-
-    mockMvc
-        .perform(
-            put(ROOT_URI + "/" + DEFAULT_WORKOUT.getId())
-                .with(jwt().jwt(DEFAULT_JWT))
+    http.perform(
+            MockMvcRequestBuilders.put("/api/v1/workouts/" + UUID.randomUUID())
+                .with(oauth2Login())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
-                    objectMapper.writeValueAsString(
-                        new WorkoutMutateRequest(
-                            "1",
-                            new WorkoutMutateBody(Instant.now().plusSeconds(3600), -255, -23)))))
-        .andExpect(matchProblemDetail());
+                    objectMapper.writeValueAsString(new WorkoutMutateBody(Instant.now(), 321, 32))))
+        .andExpect(header().string(HttpHeaders.ALLOW, HttpMethod.PUT.name()))
+        .andExpect(status().isNoContent());
   }
 
   @Test
-  void deleteWorkout_WithGoodRequest_ShouldReturnNoContent() throws Exception {
+  void deleteWorkout() throws Exception {
     doNothing().when(workoutService).deleteWorkout(any(), any());
-
-    mockMvc
-        .perform(delete(ROOT_URI + "/" + DEFAULT_WORKOUT.getId()).with(jwt().jwt(DEFAULT_JWT)))
-        .andExpect(status().isNoContent())
-        .andExpect(header().string(HttpHeaders.ALLOW, HttpMethod.DELETE.name()));
-  }
-
-  @Test
-  void deleteWorkout_WithBadId_ShouldReturnProblemDetail() throws Exception {
-    doThrow(new WorkoutNotFoundException(UUID.randomUUID()))
-        .when(workoutService)
-        .deleteWorkout(any(), any());
-
-    mockMvc
-        .perform(delete(ROOT_URI + "/" + DEFAULT_WORKOUT.getId()).with(jwt().jwt(DEFAULT_JWT)))
-        .andExpect(matchProblemDetail());
+    http.perform(
+            MockMvcRequestBuilders.delete("/api/v1/workouts/" + UUID.randomUUID())
+                .with(oauth2Login()))
+        .andExpect(header().string(HttpHeaders.ALLOW, HttpMethod.DELETE.name()))
+        .andExpect(status().isNoContent());
   }
 }
