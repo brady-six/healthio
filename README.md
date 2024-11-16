@@ -82,16 +82,20 @@ and framework-specific topics. Here's a non-exhaustive list of some learning poi
 * How to stream a response and handle data streaming on the client.
 
 If I were to start over, here are a few things I would do differently:
-* Adopt better TDD practices. My one major hiccup in this project was my testing setup. 
-    Part way through, I decided to include Spring Boot's oauth client starter to enable
-    an authentication flow directly from my API instead of later developing a full client.
-    Although this isn't problematic in isolation, it affected my current JWT Authentication
-    strategy and led to a full reset of my testing setup.
+
+* Adopt better TDD practices. My one major hiccup in this project was my testing setup.
+  Part way through, I decided to include Spring Boot's oauth client starter to enable
+  an authentication flow directly from my API instead of later developing a full client.
+  Although this isn't problematic in isolation, it affected my current JWT Authentication
+  strategy and led to a full reset of my testing setup.
 * Expand my Workout and Meal entities. Making my data models more complex (e.g., adding macro data to Meals)
-    would be an easy way to improve the quality of the AI advice. 
+  would be an easy way to improve the quality of the AI advice.
 
 ## Next Steps
-I plan to better my understanding of the [Spring IoC container and Beans](https://docs.spring.io/spring-framework/reference/core/beans/introduction.html)--specifically, how I can
+
+I plan to better my understanding of
+the [Spring IoC container and Beans](https://docs.spring.io/spring-framework/reference/core/beans/introduction.html)
+--specifically, how I can
 manage existing beans in a clean manner.
 
 ## Contact

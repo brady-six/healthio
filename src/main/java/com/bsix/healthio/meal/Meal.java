@@ -30,6 +30,10 @@ public class Meal {
 
   @ElementCollection private List<Food> foods;
 
+  static Integer calculateTotalCalories(List<Food> foods) {
+    return foods.stream().mapToInt(Food::getCalories).sum();
+  }
+
   public String toAiPromptString() {
     StringBuilder sb = new StringBuilder();
     sb.append("On " + this.getDate() + ", I ate ");
@@ -44,10 +48,6 @@ public class Meal {
         .append(".");
 
     return sb.toString();
-  }
-
-  static Integer calculateTotalCalories(List<Food> foods) {
-    return foods.stream().mapToInt(Food::getCalories).sum();
   }
 
   @Data
