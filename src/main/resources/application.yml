@@ -1,9 +1,23 @@
 spring:
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      chat:
+        options:
+          model: gpt-3.5-turbo
+          temperature: 0.7
+          frequencyPenalty: 1.6
+          maxCompletionTokens: 150
   security:
     oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
       resourceserver:
         jwt:
-          issuer-uri: https://accounts.google.com/
+          issuer-uri: https://accounts.google.com
   liquibase:
     enabled: false
   profiles:
@@ -26,7 +40,7 @@ spring:
 
 logging:
   level:
-    root: WARN
+    root: DEBUG
   file:
     path: ./logs
 
@@ -38,9 +52,9 @@ spring:
       on-profile: prod
   datasource:
     driverClassName: org.postgresql.Driver
-    url: {db.url}
-    username: {db.username}
-    password: {db.password}
+    url: { db.url }
+    username: { db.username }
+    password: { db.password }
   jpa:
     open-in-view: false
     hibernate:
