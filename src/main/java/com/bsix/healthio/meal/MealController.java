@@ -39,6 +39,7 @@ public class MealController {
   private final PagedResourcesAssembler<Meal> mealPageAssembler;
 
   private final MealAssembler mealAssembler;
+
   @Value("${spring.ai.openai.api-key}")
   private String apiKey;
 

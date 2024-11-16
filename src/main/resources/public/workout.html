@@ -32,19 +32,22 @@
         <form class="space-y-4" id="workoutForm" onsubmit="handleSubmitWorkout(event)">
             <div>
                 <label class="block text-gray-600 font-medium" for="date">Date of Workout</label>
-                <input class="w-full px-4 py-2 border rounded focus:ring focus:ring-blue-300" id="date" name="date" required
+                <input class="w-full px-4 py-2 border rounded focus:ring focus:ring-blue-300" id="date" name="date"
+                       required
                        type="datetime-local">
             </div>
 
             <div>
                 <label class="block text-gray-600 font-medium" for="caloriesBurned">Calories Burned</label>
-                <input class="w-full px-4 py-2 border rounded focus:ring focus:ring-blue-300" id="caloriesBurned" max="9999" min="1" name="caloriesBurned" required
+                <input class="w-full px-4 py-2 border rounded focus:ring focus:ring-blue-300" id="caloriesBurned"
+                       max="9999" min="1" name="caloriesBurned" required
                        type="number">
             </div>
 
             <div>
                 <label class="block text-gray-600 font-medium" for="durationMinutes">Duration (Minutes)</label>
-                <input class="w-full px-4 py-2 border rounded focus:ring focus:ring-blue-300" id="durationMinutes" max="1440" min="1" name="durationMinutes" required
+                <input class="w-full px-4 py-2 border rounded focus:ring focus:ring-blue-300" id="durationMinutes"
+                       max="1440" min="1" name="durationMinutes" required
                        type="number">
             </div>
 
@@ -72,7 +75,8 @@
 
         <!-- Chat Input -->
         <form class="flex" onsubmit="handleSubmitAdvice(event, 'http://localhost:8080/api/v1/workouts/advice')">
-            <input class="flex-grow px-4 py-2 border rounded-l focus:ring focus:ring-blue-300" id="chatMessage" name="chatMessage" placeholder="Enter your message..." required
+            <input class="flex-grow px-4 py-2 border rounded-l focus:ring focus:ring-blue-300" id="chatMessage"
+                   name="chatMessage" placeholder="Enter your message..." required
                    type="text">
             <button class="bg-blue-500 text-white px-6 py-2 rounded-r hover:bg-blue-600"
                     type="submit">
